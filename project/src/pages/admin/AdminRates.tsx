@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { API_URL } from '../../config/constants';
-import { DollarSign, Save } from 'lucide-react';
+import { Save, IndianRupee } from 'lucide-react';
 
 interface RateSettings {
   id: number;
@@ -11,7 +11,7 @@ interface RateSettings {
 
 const AdminRates: React.FC = () => {
   const [rate, setRate] = useState('');
-  const [currentRate, setCurrentRate] = useState<number | null>(null);
+  const [currentRate, setCurrentRate] = useState<number>(0); // Initialize with 0 instead of null
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -25,11 +25,16 @@ const AdminRates: React.FC = () => {
       const response = await axios.get(`${API_URL}/admin/rate`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const rate = response.data.hourly_rate;
+      
+      // Ensure we always get a number
+      const rate = Number(response.data?.hourly_rate) || 0;
       setCurrentRate(rate);
       setRate(rate.toString());
     } catch (error) {
       toast.error('Failed to fetch current rate');
+      console.error('Fetch rate error:', error);
+      setCurrentRate(0); // Set default value on error
+      setRate('0');
     } finally {
       setLoading(false);
     }
@@ -56,6 +61,7 @@ const AdminRates: React.FC = () => {
       toast.success('Hourly rate updated successfully');
     } catch (error) {
       toast.error('Failed to update hourly rate');
+      console.error('Update rate error:', error);
     } finally {
       setSaving(false);
     }
@@ -78,7 +84,7 @@ const AdminRates: React.FC = () => {
           <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
             <div className="flex">
               <div className="flex-shrink-0">
-                <DollarSign className="h-5 w-5 text-yellow-400" />
+                <IndianRupee className="h-5 w-5 text-yellow-400" />
               </div>
               <div className="ml-3">
                 <p className="text-sm text-yellow-700">
@@ -91,20 +97,22 @@ const AdminRates: React.FC = () => {
           <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg mb-6">
             <div>
               <h3 className="text-sm font-medium text-gray-500">Current Hourly Rate</h3>
-              <p className="text-3xl font-bold text-blue-600">${currentRate?.toFixed(2)}</p>
+              <p className="text-3xl font-bold text-blue-600">
+              ₹{currentRate.toFixed(2)} {/* Safe to call now as currentRate is always a number */}
+              </p>
             </div>
-            <DollarSign className="h-12 w-12 text-blue-400" />
+            <IndianRupee className="h-12 w-12 text-blue-400" />
           </div>
         </div>
         
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="rate" className="block text-gray-700 text-sm font-medium mb-2">
-              New Hourly Rate ($)
+              New Hourly Rate (₹)
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="text-gray-500 sm:text-sm">$</span>
+                <span className="text-gray-500 sm:text-sm">₹</span>
               </div>
               <input
                 type="number"

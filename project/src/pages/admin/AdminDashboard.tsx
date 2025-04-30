@@ -39,9 +39,20 @@ const AdminDashboard: React.FC = () => {
         const response = await axios.get(`${API_URL}/admin/dashboard`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setStats(response.data);
+        
+        // Validate and convert all response data to numbers
+        const data = {
+          totalLocations: Number(response.data.totalLocations) || 0,
+          totalEmployees: Number(response.data.totalEmployees) || 0,
+          totalVehicles: Number(response.data.totalVehicles) || 0,
+          hourlyRate: Number(response.data.hourlyRate) || 0,
+          occupancyRate: Number(response.data.occupancyRate) || 0
+        };
+        
+        setStats(data);
       } catch (error) {
         toast.error('Failed to fetch dashboard data');
+        console.error('Fetch error:', error);
       } finally {
         setIsLoading(false);
       }
@@ -69,19 +80,19 @@ const AdminDashboard: React.FC = () => {
       title: 'Vehicles Managed',
       value: stats.totalVehicles,
       icon: <Car className="h-8 w-8 text-purple-500" />,
-      linkTo: '/admin',
+      linkTo: '/admin/vehicles',
       color: 'bg-purple-50 border-purple-200'
     },
     {
       title: 'Hourly Rate',
-      value: `$${stats.hourlyRate.toFixed(2)}`,
+      value: `$${(stats.hourlyRate || 0).toFixed(2)}`,
       icon: <DollarSign className="h-8 w-8 text-yellow-500" />,
       linkTo: '/admin/rates',
       color: 'bg-yellow-50 border-yellow-200'
     },
     {
       title: 'Occupancy Rate',
-      value: `${stats.occupancyRate}%`,
+      value: `${stats.occupancyRate || 0}%`,
       icon: <Activity className="h-8 w-8 text-red-500" />,
       linkTo: '/admin/locations',
       color: 'bg-red-50 border-red-200'
