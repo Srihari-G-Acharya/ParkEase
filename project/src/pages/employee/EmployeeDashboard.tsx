@@ -357,13 +357,17 @@ const EmployeeDashboard: React.FC = () => {
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {vehicle.cost !== null ? (
-                          <span className="font-medium text-green-600">${vehicle.cost.toFixed(2)}</span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
+  {vehicle.cost !== null && !isNaN(Number(vehicle.cost)) ? (
+    <span className="font-medium text-green-600">₹{Number(vehicle.cost).toFixed(2)}</span>
+  ) : (
+    <span className="text-gray-400">-</span>
+  )}
+</td>
+
+
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         {vehicle.exit_time === null ? (
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
